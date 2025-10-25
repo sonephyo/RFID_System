@@ -1,11 +1,9 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include "secrets.h"
 
-const char *host = "api.thingspeak.com";
-const int httpPort = 80;
-const String writeApiKey = "JG4S1IKAS91AE0CN";
-
-int field1 = 0;
+const char *host = "api.github.com";
+const int httpPort = 443;
 
 void setup() {
   Serial.begin(115200);
@@ -27,22 +25,26 @@ void loop() {
     delay(2000);
     return;
   }
+  Serial.println("Wifi is still in connection.");
 
-  WiFiClient client;
+  WiFiClientSecure client;
+
+  client.setInsecure();
+
   if (!client.connect(host, httpPort)) {
     Serial.println("❌ Connection failed");
     delay(10000);
     return;
   }
 
-  String url = "/update?api_key=" + writeApiKey + "&field1=" + String(field1);
+  String url = "/users/sonephyo";
 
   // Properly formatted HTTP GET request
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
+               "User-Agent: ESP32HTTPClient/1.0\r\n" +  // ADD THIS!
+               "Accept: application/json\r\n" +
                "Connection: close\r\n\r\n");
-
-  Serial.println("📤 Sending to ThingSpeak: field1 = " + String(field1));
 
   // Read server response
   while (client.connected() || client.available()) {
@@ -52,5 +54,5 @@ void loop() {
     }
   }
   
-  delay(20000);
+  delay(200000);
 }
