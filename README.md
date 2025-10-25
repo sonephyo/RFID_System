@@ -11,5 +11,5 @@ mv ./secrets.h.example ./rfid_scanner/secrets.h
 
 Configure ./rfid_scanner/secrets.h with the right credentials
 
-Install "Arduino_JSON" by Arduino by going to Sketch > Include Library > ESP32
+Install "Arduino_JSON" by Benoit Blanchon by going to Sketch > Include Library > ESP32
 
