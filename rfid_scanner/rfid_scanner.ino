@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
 #include "secrets.h"
 
 const char *host = "api.github.com";
@@ -39,20 +40,40 @@ void loop() {
 
   String url = "/users/sonephyo";
 
-  // Properly formatted HTTP GET request
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
-               "User-Agent: ESP32HTTPClient/1.0\r\n" +  // ADD THIS!
+               "User-Agent: ESP32HTTPClient/1.0\r\n" +
                "Accept: application/json\r\n" +
                "Connection: close\r\n\r\n");
 
-  // Read server response
   while (client.connected() || client.available()) {
     if (client.available()) {
       String line = client.readStringUntil('\n');
       Serial.println(line);
+      line.trim();
+      if (line.length() == 0) {
+        break;
+      }
     }
   }
-  
+
+  DynamicJsonDocument doc(2048);
+  DeserializationError error = deserializeJson(doc, client);
+
+  if (error) {
+    Serial.print("JSON parsing failed: ");
+    Serial.println(error.c_str());
+    return;
+  }
+  const char* login = doc["login"];
+  const char* name = doc["name"];
+  const char* company = doc["company"];
+  int id = doc["id"];
+
+  Serial.printf("Login: %s, ID: %d, Name: %s, Company: %s\n", 
+                login ? login : "null", 
+                id, 
+                name ? name : "null", 
+                company ? company : "null");
   delay(200000);
 }
