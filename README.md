@@ -6,7 +6,7 @@ In order to facilitate an easier workflow for places that require attendance, th
 
 ```
 git clone https://github.com/sonephyo/RFID_System
-mv ./secrets.h.example ./sketch_oct24c/secrets.h
+mv ./secrets.h.example ./rfid_scanner/secrets.h
 ```
 
-Configure ./sketch_oct24c/secrets.h with the right credentials
+Configure ./rfid_scanner/secrets.h with the right credentials
