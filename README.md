@@ -17,5 +17,5 @@ Install "Arduino_JSON" by Arduino by going to Sketch > Include Library > ESP32
 
 ```
 cd rfid-backend
-CompileDaemon -command="./rfid-backend"
+CompileDaemon -command="./bin/rfid-backend" -build="go build -o ./bin"
 ```
