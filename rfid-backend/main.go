@@ -15,7 +15,8 @@ func main() {
 	r := gin.Default()
 
 	user_r := r.Group("/users")
-	user_r.GET("/", controllers.GetUser)
+	user_r.GET("/", controllers.GetUsers)
+	user_r.POST("/", controllers.PostUser)
 
 	// TODO: Implement attendence functionality after scanning
 	// attendence_r := r.Group("/attendences")
