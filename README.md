@@ -13,3 +13,9 @@ Configure ./rfid_scanner/secrets.h with the right credentials
 
 Install "Arduino_JSON" by Arduino by going to Sketch > Include Library > ESP32
 
+## How to run backend
+
+```
+cd rfid-backend
+CompileDaemon -command="./rfid-backend"
+```
