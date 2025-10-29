@@ -15,6 +15,8 @@ Install "Arduino_JSON" by Arduino by going to Sketch > Include Library > ESP32
 
 ## How to run backend
 
+Install Golang [Link](https://go.dev/doc/install)
+
 Get into the directory
 ```
 cd rfid-backend
@@ -23,6 +25,11 @@ cd rfid-backend
 Setup env file (Note: Fill in the secret variables)
 ```
 mv .env.example .env
+```
+
+Installing dependencies
+```
+go mod tidy
 ```
 
 Starting backend in development
