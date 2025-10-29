@@ -1,3 +1,5 @@
 secrets.h
 .DS_Store
-
+.vscode
+bin/
+.env

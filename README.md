@@ -13,3 +13,33 @@ Configure ./rfid_scanner/secrets.h with the right credentials
 
 Install "Arduino_JSON" by Benoit Blanchon by going to Sketch > Include Library > ESP32
 
+## How to run backend
+
+Install Golang [Link](https://go.dev/doc/install)
+
+Get into the directory
+```
+cd rfid-backend
+```
+
+Setup env file (Note: Fill in the secret variables)
+```
+mv .env.example .env
+```
+
+Installing dependencies
+```
+go mod tidy
+```
+
+Starting backend in development
+```
+CompileDaemon -command="./bin/rfid-backend" -build="go build -o ./bin"
+```
+
+
+## Configuration
+If the tables need to be reset, run the following. (**Caution**: This operation can delete all existing data created)
+```
+go run migrate/migrate.go
+```
