@@ -57,7 +57,7 @@ func main() {
 				fmt.Printf("Added %s into User table\n", user.Name)
 				continue
 			} else {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Printf("Error: %v\n", result.Error)
 				log.Fatal()
 			}
 		}
