@@ -1,0 +1,32 @@
+info:
+  contact: {}
+paths:
+  /helloworld:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example
+      tags:
+      - example
+  /users:
+    get:
+      description: Get user
+      responses: {}
+      summary: get user
+      tags:
+      - users
+    post:
+      description: Post user
+      responses: {}
+      summary: post user
+      tags:
+      - users
+swagger: "2.0"

@@ -1,0 +1,49 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/helloworld": {
+            "get": {
+                "description": "do ping",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "ping example",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Get user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "get user",
+                "responses": {}
+            },
+            "post": {
+                "description": "Post user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "post user",
+                "responses": {}
+            }
+        }
+    }
+}
