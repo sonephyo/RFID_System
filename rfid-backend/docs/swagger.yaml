@@ -1,16 +1,43 @@
+definitions:
+  controllers.UserBody:
+    properties:
+      age:
+        type: integer
+      cardID:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
   /users:
     get:
+      produces:
+      - application/json
       responses: {}
       summary: get all available users from database
       tags:
       - users
     post:
-      description: Post user
-      responses: {}
-      summary: post user
+      consumes:
+      - application/json
+      description: This endpoint creates a new user.
+      parameters:
+      - description: UserBody data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created or returned existing user
+          schema:
+            $ref: '#/definitions/controllers.UserBody'
+      summary: Create a new user
       tags:
       - users
 swagger: "2.0"

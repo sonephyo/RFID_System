@@ -17,6 +17,9 @@ const docTemplate = `{
     "paths": {
         "/users": {
             "get": {
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "users"
                 ],
@@ -24,12 +27,52 @@ const docTemplate = `{
                 "responses": {}
             },
             "post": {
-                "description": "Post user",
+                "description": "This endpoint creates a new user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "users"
                 ],
-                "summary": "post user",
-                "responses": {}
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "UserBody data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created or returned existing user",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserBody"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.UserBody": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "cardID": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
             }
         }
     }
