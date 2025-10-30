@@ -43,3 +43,13 @@ If the tables need to be reset, run the following. (**Caution**: This operation 
 ```
 go run migrate/migrate.go
 ```
+
+# Documentation
+For an easier developer, gin-swagger is implemented for documentation. To access the documentation visit [<backend_url>/swagger/index.html]
+
+To compile documentation, run 
+```
+./scripts/compile_docs.sh
+```
+
+Please follow the guidelines at [Link](https://github.com/swaggo/gin-swagger) when developing apis and adding documentation. Documentation will enable future development to become easier.
