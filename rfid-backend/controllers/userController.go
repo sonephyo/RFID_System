@@ -9,6 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary get all available users from database
+// @Tags users
+// @Router /users [get]
 func GetUsers(ctx *gin.Context) {
 	var users []models.User
 	result := initializers.DB.Find(&users)
@@ -23,6 +26,11 @@ func GetUsers(ctx *gin.Context) {
 	})
 }
 
+// @Summary create a new user
+// @Schemes
+// @Description create a new user if the user does not exist. If user does exist, it will return the already created user without returning anything
+// @Tags users
+// @Router /users [post]
 func PostUser(ctx *gin.Context) {
 	// Get data off req body
 	var body struct {

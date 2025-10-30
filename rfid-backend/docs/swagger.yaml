@@ -1,26 +1,10 @@
 info:
   contact: {}
 paths:
-  /helloworld:
-    get:
-      consumes:
-      - application/json
-      description: do ping
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: ping example
-      tags:
-      - example
   /users:
     get:
-      description: Get user
       responses: {}
-      summary: get user
+      summary: get all available users from database
       tags:
       - users
     post:
