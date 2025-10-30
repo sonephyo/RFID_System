@@ -26,6 +26,38 @@ const docTemplate = `{
                 "summary": "get all available users from database",
                 "responses": {}
             },
+            "put": {
+                "description": "This endpoint updates existing user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update existing user",
+                "parameters": [
+                    {
+                        "description": "UserBody data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserBody"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "This endpoint creates a new user.",
                 "consumes": [

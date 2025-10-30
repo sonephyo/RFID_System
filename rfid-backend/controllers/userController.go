@@ -81,3 +81,49 @@ func PostUser(ctx *gin.Context) {
 		"message": "User already created",
 	})
 }
+
+
+// @Summary Update existing user
+// @Description This endpoint updates existing user.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body UserBody true "UserBody data"
+// @Success 200 {object} UserBody "Successfully updated user"
+// @Router /users [put]
+func PutUser(ctx *gin.Context) {
+	var body UserBody
+
+	if err := ctx.Bind(&body); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	var existingUser models.User
+	result := initializers.DB.Where(&models.User{Name: body.Name}).First(&existingUser)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			ctx.Status(404)
+		} else {
+			ctx.Status(400)
+		}
+		return
+	}
+
+	existingUser.Age = body.Age
+	existingUser.CardID = body.CardID
+
+	result = initializers.DB.Save(&existingUser)
+
+	if result.Error != nil {
+		ctx.Status(400)
+		return
+	}
+	
+	ctx.JSON(200, gin.H{
+		"user":    existingUser,
+		"message": "User updated",
+	})
+
+}

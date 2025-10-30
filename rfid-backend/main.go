@@ -21,6 +21,7 @@ func main() {
 	user_r := r.Group("/users")
 	user_r.GET("/", controllers.GetUsers)
 	user_r.POST("/", controllers.PostUser)
+	user_r.PUT("/", controllers.PutUser)
 
 	// TODO: Implement attendence functionality after scanning
 	// attendence_r := r.Group("/attendences")
