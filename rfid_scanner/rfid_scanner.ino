@@ -1,11 +1,6 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include "secrets.h"
-
-const char *host = "api.thingspeak.com";
-const int httpPort = 80;
-const String writeApiKey = "JG4S1IKAS91AE0CN";
-
-int field1 = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -15,42 +10,39 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\n✅ WiFi connected!");
+  Serial.println("\n WiFi connected!");
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 }
 
 void loop() {
+  reconnectWifi();
+  WiFiClientSecure client;
+  client.setInsecure();
+  bool isConnected = connectBackend(client);
+  if (isConnected) {
+    getUser(client);
+  } else {
+    Serial.println("Backend cannot be connected.");
+  }
+  
+  delay(20000);
+}
+
+void reconnectWifi() { 
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Reconnecting WiFi...");
     WiFi.reconnect();
     delay(2000);
     return;
   }
+}
 
-  WiFiClient client;
-  if (!client.connect(host, httpPort)) {
-    Serial.println("❌ Connection failed");
+bool connectBackend(WiFiClientSecure &client) {
+  if (!client.connect(HOST, HTTPPORT)) {
+    Serial.println("Connection failed");
     delay(10000);
-    return;
+    return false;
   }
-
-  String url = "/update?api_key=" + writeApiKey + "&field1=" + String(field1);
-
-  // Properly formatted HTTP GET request
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
-               "Connection: close\r\n\r\n");
-
-  Serial.println("📤 Sending to ThingSpeak: field1 = " + String(field1));
-
-  // Read server response
-  while (client.connected() || client.available()) {
-    if (client.available()) {
-      String line = client.readStringUntil('\n');
-      Serial.println(line);
-    }
-  }
-  
-  delay(20000);
+  return true;
 }
