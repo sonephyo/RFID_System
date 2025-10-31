@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
 #include "secrets.h"
 
 void setup() {
@@ -17,8 +17,7 @@ void setup() {
 
 void loop() {
   reconnectWifi();
-  WiFiClientSecure client;
-  client.setInsecure();
+  WiFiClient client;
   bool isConnected = connectBackend(client);
   if (isConnected) {
     getUser(client);
@@ -38,7 +37,7 @@ void reconnectWifi() {
   }
 }
 
-bool connectBackend(WiFiClientSecure &client) {
+bool connectBackend(WiFiClient &client) {
   if (!client.connect(HOST, HTTPPORT)) {
     Serial.println("Connection failed");
     delay(10000);
