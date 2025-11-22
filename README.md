@@ -89,6 +89,9 @@ Connect Arduino Uno to ESP32:
 - **Arduino Uno RX** → **ESP32 Pin 17 (TXp2)**
 - **GND** → **GND** (common ground)
 
+
+<img src="https://github.com/user-attachments/assets/229e0cfe-6fa9-42f7-a987-3b080297a009" width="400">
+
 #### Configuration
 
 1. Copy the secrets template:
@@ -332,4 +335,5 @@ When adding new API endpoints:
 1. Create a new branch for your feature
 2. Make your changes following the development guidelines
 3. Test your changes thoroughly
+
 4. Submit a pull request with a clear description
