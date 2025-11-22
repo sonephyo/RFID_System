@@ -7,6 +7,8 @@ void setup() {
   Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
 }
 void loop() {
-    Serial.println("Message Received: ");
-    Serial.println(Serial2.readString());
+  String idCode = Serial2.readString();
+  if (!idCode.isEmpty()) {
+    Serial.printf("ID detected: %s", idCode);
+  }
 }
