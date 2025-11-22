@@ -21,16 +21,13 @@ void loop() {
     return;
   }
   
-  // Build card ID
   String cardUID = "";
   for (byte i = 0; i < mfrc522.uid.size; i++) {
     if (mfrc522.uid.uidByte[i] < 0x10) cardUID += "0";
     cardUID += String(mfrc522.uid.uidByte[i], HEX);
   }
-  
-  // Send to ESP32 (replaces "Hello Boss")
   Serial.println(cardUID);
   
   mfrc522.PICC_HaltA();
-  delay(1500);
+  delay(2000);
 }
