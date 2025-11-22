@@ -1,0 +1,14 @@
+# Transfer backend to server, create docker image and start docker server
+# The command should be executed from the root directory "CSC473-MainProject"
+
+rsync -avz ./rfid-backend <username>@<server>:/home/<username>/CSC473
+
+ssh <username>@<server> "
+    cd /home/<username>/CSC473/rfid-backend
+    docker stop rfid-backend-container
+    docker rm rfid-backend-container
+    docker rmi rfid-backend
+    docker build . -t rfid-backend
+    docker run -d --name rfid-backend-container -p 7778:8080 rfid-backend
+    docker ps
+"
