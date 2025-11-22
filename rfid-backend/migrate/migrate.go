@@ -1,13 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
 	"github.com/sonephyo/RFID_System/rfid-backend/initializers"
 	"github.com/sonephyo/RFID_System/rfid-backend/models"
-	"gorm.io/gorm"
 )
 
 func init() {
@@ -17,52 +15,43 @@ func init() {
 
 func main() {
 
-	err := initializers.DB.Migrator().DropTable(&models.User{})
+	err := initializers.DB.Migrator().DropTable(&models.User{}, &models.Class{}, "user_classes")
 	if err != nil {
-		log.Fatalf("failed to drop table: %v", err)
+		log.Fatalf("failed to drop tables: %v", err)
 	}
-	fmt.Printf("Dropping User table...\n")
+	fmt.Printf("Dropping tables...\n")
 
-	err = initializers.DB.AutoMigrate(&models.User{})
+	err = initializers.DB.AutoMigrate(&models.User{}, &models.Class{})
 	if err != nil {
 		log.Fatal("Error: Migration Failed")
 	}
-	fmt.Printf("User table created...\n")
+	fmt.Printf("Tables created...\n")
 
-	var dummyData = []models.User{
+	classData := []*models.Class{
+		{Name: "CSC322"},
+		{Name: "CSC473"},
+	}
+	initializers.DB.Create(&classData)
+
+	var userData = []models.User{
 		{
 			Name:   "Soney",
 			Age:    21,
 			CardID: "8061231234",
+			Classes: []*models.Class{
+				classData[0],
+				classData[1],
+			},
 		},
 		{
 			Name:   "Vandan",
 			Age:    22,
 			CardID: "8064324321",
+			Classes: []*models.Class{
+				classData[0],
+			},
 		},
 	}
 
-	for _, user := range dummyData {
-
-		var existingUser models.User
-		result := initializers.DB.Where(&models.User{Name: user.Name}).First(&existingUser)
-
-		if result.Error != nil {
-			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				result := initializers.DB.Create(&user)
-				if result.Error != nil {
-					log.Fatal("Error: error in adding user data into the db")
-					return
-				}
-				fmt.Printf("Added %s into User table\n", user.Name)
-				continue
-			} else {
-				fmt.Printf("Error: %v\n", result.Error)
-				log.Fatal()
-			}
-		}
-
-		fmt.Printf("User already exists: %s\n", existingUser.Name)
-	}
-
+	initializers.DB.Create(userData)
 }
