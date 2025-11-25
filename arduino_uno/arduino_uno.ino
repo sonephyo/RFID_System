@@ -26,7 +26,7 @@ void loop() {
     if (mfrc522.uid.uidByte[i] < 0x10) cardUID += "0";
     cardUID += String(mfrc522.uid.uidByte[i], HEX);
   }
-  Serial.println(cardUID);
+  Serial.println("Card: " + cardUID);
   
   mfrc522.PICC_HaltA();
   delay(2000);
