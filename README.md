@@ -232,6 +232,33 @@ RX         ────────────→  Pin 17 (TXp2)
 GND        ────────────→  GND
 ```
 
+### LCD 1602 Display (Connected to ESP32)
+
+Connect the LCD 1602 (16-pin version) to ESP32:
+
+| LCD Pin | Connection |
+|---------|------------|
+| 1 (VSS) | GND |
+| 2 (VDD) | 5V |
+| 3 (V0)  | Potentiometer middle pin (or GND for max contrast) |
+| 4 (RS)  | GPIO 22 |
+| 5 (RW)  | GND |
+| 6 (E)   | GPIO 23 |
+| 7-10 (D0-D3) | Not connected |
+| 11 (D4) | GPIO 5 |
+| 12 (D5) | GPIO 18 |
+| 13 (D6) | GPIO 19 |
+| 14 (D7) | GPIO 21 |
+| 15 (A)  | 5V |
+| 16 (K)  | GND |
+
+**Potentiometer (for contrast adjustment):**
+- Outer pin 1 → 5V
+- Outer pin 2 → GND
+- Middle pin → LCD Pin 3 (V0)
+
+**Note:** Each potentiometer leg must be in a different row on the breadboard to avoid short circuit.
+
 ## 🏃 Running the System
 
 ### Complete Workflow
