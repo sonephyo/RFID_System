@@ -15,6 +15,13 @@ void clearLine(int row) {
   lcd.print("                ");
 }
 
+void clearAllLines() {
+  lcd.setCursor(0, 0);
+  lcd.print("                ");
+  lcd.setCursor(0, 1);
+  lcd.print("                ");
+}
+
 void displayAt(int col, int row, String text) {
   lcd.setCursor(col, row);
   lcd.print(text);
@@ -42,7 +49,7 @@ void displayMenu(String option1, String option2, int selected) {
   lcd.setCursor(0, 0);
   lcd.print(selected == 0 ? "> " : "  ");
   lcd.print(option1.substring(0, 14));
-  
+
   lcd.setCursor(0, 1);
   lcd.print(selected == 1 ? "> " : "  ");
   lcd.print(option2.substring(0, 14));
@@ -55,8 +62,8 @@ void scrollText(int row, String text) {
     lcd.print(text);
     return;
   }
-  
-  String padded = "                " + text;
+
+  String padded = "                " + text + "      ";
   for (int i = 0; i < padded.length() - 16; i++) {
     lcd.setCursor(0, row);
     lcd.print(padded.substring(i, i + 16));
