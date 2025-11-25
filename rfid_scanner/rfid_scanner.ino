@@ -14,6 +14,7 @@ void setup() {
   scrollText(0, "Connecting to Wifi...");
   setUpWifi();
   displayLine1("Connected");
+  setupJoystick();
 }
 
 void loop() {
@@ -22,13 +23,22 @@ void loop() {
   }
 
   reconnectWifi();
-  WiFiClient client;
-  bool isConnected = connectBackend(client);
-  if (isConnected) {
-    getUser(client);
-  } else {
-    Serial.println("Backend cannot be connected.");
-  }
+  // WiFiClient client;
+  // bool isConnected = connectBackend(client);
+  // if (isConnected) {
+  //   getUser(client);
+  // } else {
+  //   Serial.println("Backend cannot be connected.");
+  // }
 
-  delay(20000);
+  Serial.print("X: ");
+  Serial.print(getJoystickX());
+  Serial.print(" | Y: ");
+  Serial.print(getJoystickY());
+  Serial.print(" | Button: ");
+  Serial.print(isButtonPressed() ? "PRESSED" : "---");
+  Serial.print(" | ");
+  Serial.println(getDirection());
+
+  delay(200);
 }
