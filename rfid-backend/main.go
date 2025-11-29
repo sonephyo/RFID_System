@@ -18,13 +18,29 @@ func main() {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/"
 
-	user_r := r.Group("/users")
-	user_r.GET("/", controllers.GetUsers)
-	user_r.POST("/", controllers.PostUser)
-	user_r.PUT("/", controllers.PutUser)
+	api := r.Group("/api")
+	{
+		user_r := api.Group("/users")
+		user_r.GET("/", controllers.GetUsers)
+		user_r.POST("/", controllers.PostUser)
+		user_r.PUT("/", controllers.PutUser)
+		user_r.PUT("/:id", controllers.PutUserByID)
+		user_r.GET("/card/:cardId", controllers.GetUserByCardID)
+		user_r.PUT("/:id/classes", controllers.UpdateUserClasses)
+
+		class_r := api.Group("/classes")
+		class_r.GET("/", controllers.GetClasses)
+	}
 
 	// TODO: Implement attendence functionality after scanning
 	// attendence_r := r.Group("/attendences")
+
+	r.Static("/assets", "./frontend/dist/assets")
+	r.StaticFile("/", "./frontend/dist/index.html")
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
+
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run()

@@ -1,5 +1,3 @@
-#define RXp2 16
-#define TXp2 17
 #include <WiFi.h>
 #include <ArduinoJson.h>
 #include "secrets.h"
@@ -13,7 +11,7 @@ int currentMode = MODE_ATTENDANCE;
 
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
+  setupCardScanner();
   setupLCD();
   setupJoystick();
 
@@ -36,9 +34,9 @@ void setup() {
 }
 
 void loop() {
-  if (Serial2.available()) {
-    Serial.println(Serial2.readStringUntil('\n'));
-  }
+  // if (Serial2.available()) {
+  //   Serial.println(Serial2.readStringUntil('\n'));
+  // }
 
   if (currentMode == MODE_ATTENDANCE) {
     attendanceOperation();
@@ -48,25 +46,24 @@ void loop() {
 }
 
 void configOperation() {
-  Serial.print("X: ");
-  Serial.print(getJoystickX());
-  Serial.print(" | Y: ");
-  Serial.print(getJoystickY());
-  Serial.print(" | Button: ");
-  Serial.print(isButtonPressed() ? "PRESSED" : "---");
-  Serial.print(" | ");
-  Serial.println(getDirection());
 
-  delay(200);
 }
 
 void attendanceOperation() {
-  reconnectWifi();
-  WiFiClient client;
-  bool isConnected = connectBackend(client);
-  if (isConnected) {
-    getUser(client);
-  } else {
-    Serial.println("Backend cannot be connected.");
+  // reconnectWifi();
+  // WiFiClient client;
+  // bool isConnected = connectBackend(client);
+  // if (isConnected) {
+  //   getUser(client);
+  // } else {
+  //   Serial.println("Backend cannot be connected.");
+  // }
+
+  String card = readCard();
+
+  if (card != "") {
+    Serial.println("Card: " + card); // Sending to frontend
+    displayLine1("Card scanned:");
+    displayLine2(card);
   }
 }
