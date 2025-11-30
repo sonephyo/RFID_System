@@ -48,13 +48,6 @@ func main() {
 
 	// TODO: Implement attendence functionality after scanning
 	// attendence_r := r.Group("/attendences")
-
-	r.Static("/assets", "./frontend/dist/assets")
-	r.StaticFile("/", "./frontend/dist/index.html")
-	r.NoRoute(func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
-	})
-
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run()
 }
