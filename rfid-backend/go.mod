@@ -3,6 +3,7 @@ module github.com/sonephyo/RFID_System/rfid-backend
 go 1.25.3
 
 require (
+	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1

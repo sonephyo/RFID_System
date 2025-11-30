@@ -2,6 +2,13 @@
 #define VRY 35
 #define SW 32
 
+#define JOY_NONE 0
+#define JOY_UP 1
+#define JOY_DOWN 2
+#define JOY_LEFT 3
+#define JOY_RIGHT 4
+#define JOY_CLICK 5
+
 void setupJoystick() {
   pinMode(SW, INPUT_PULLUP);
 }
@@ -18,6 +25,20 @@ bool isButtonPressed() {
   return digitalRead(SW) == 0;
 }
 
+int readJoystick() {
+  if (isButtonPressed()) return JOY_CLICK;
+  
+  int x = getJoystickX();
+  int y = getJoystickY();
+  
+  if (y < 1000) return JOY_UP;
+  if (y > 3000) return JOY_DOWN;
+  if (x < 1000) return JOY_LEFT;
+  if (x > 3000) return JOY_RIGHT;
+  
+  return JOY_NONE;
+}
+
 String getDirection() {
   int x = getJoystickX();
   int y = getJoystickY();
@@ -28,6 +49,7 @@ String getDirection() {
   if (y > 3000) return "DOWN";
   return "CENTER";
 }
+
 void debugJoyStick() {
   Serial.print("X: ");
   Serial.print(getJoystickX());

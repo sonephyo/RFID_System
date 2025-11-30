@@ -41,42 +41,36 @@ func GetUsers(ctx *gin.Context) {
 // @Success 200 {object} UserBody "Successfully created or returned existing user"
 // @Router /users [post]
 func PostUser(ctx *gin.Context) {
-	// Get data off req body
 	var body UserBody
-
 	if err := ctx.Bind(&body); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Check if card already registered
 	var existingUser models.User
-	result := initializers.DB.Where(&models.User{Name: body.Name}).First(&existingUser)
-
+	result := initializers.DB.Where("card_id = ?", body.CardID).First(&existingUser)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-
 			user := models.User{Name: body.Name, Age: body.Age, CardID: body.CardID}
 			result = initializers.DB.Create(&user)
-
 			if result.Error != nil {
-				ctx.Status(400)
+				ctx.JSON(400, gin.H{"error": "Failed to create user"})
 				return
 			}
-
 			ctx.JSON(200, gin.H{
 				"user":    user,
 				"message": "User created",
 			})
 			return
 		} else {
-			ctx.Status(400)
+			ctx.JSON(400, gin.H{"error": "Database error"})
 			return
 		}
 	}
-
 	ctx.JSON(409, gin.H{
+		"error":   "Card already registered",
 		"user":    existingUser,
-		"message": "User already created",
 	})
 }
 
