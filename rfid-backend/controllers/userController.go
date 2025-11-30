@@ -21,13 +21,11 @@ type UserBody struct {
 // @Router /users [get]
 func GetUsers(ctx *gin.Context) {
 	var users []models.User
-	result := initializers.DB.Find(&users)
-
+	result := initializers.DB.Preload("Classes").Find(&users)
 	if result.Error != nil {
 		ctx.Status(400)
 		return
 	}
-
 	ctx.JSON(200, gin.H{
 		"data": users,
 	})
@@ -82,7 +80,6 @@ func PostUser(ctx *gin.Context) {
 	})
 }
 
-
 // @Summary Update existing user
 // @Description This endpoint updates existing user.
 // @Tags users
@@ -120,10 +117,101 @@ func PutUser(ctx *gin.Context) {
 		ctx.Status(400)
 		return
 	}
-	
+
 	ctx.JSON(200, gin.H{
 		"user":    existingUser,
 		"message": "User updated",
 	})
 
+}
+
+// @Summary Get user by Card ID
+// @Tags users
+// @Produce json
+// @Param cardId path string true "Card ID"
+// @Router /users/card/{cardId} [get]
+func GetUserByCardID(ctx *gin.Context) {
+	cardID := ctx.Param("cardId")
+
+	var user models.User
+	result := initializers.DB.Preload("Classes").Where("card_id = ?", cardID).First(&user)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "User not found"})
+			return
+		}
+		ctx.JSON(400, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	ctx.JSON(200, user)
+}
+
+// @Summary Update user's classes
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Router /users/{id}/classes [put]
+func UpdateUserClasses(ctx *gin.Context) {
+	userID := ctx.Param("id")
+
+	var body struct {
+		ClassIDs []uint `json:"classIds"`
+	}
+	if err := ctx.Bind(&body); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := initializers.DB.First(&user, userID).Error; err != nil {
+		ctx.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
+
+	var classes []models.Class
+	initializers.DB.Find(&classes, body.ClassIDs)
+
+	initializers.DB.Model(&user).Association("Classes").Replace(classes)
+
+	initializers.DB.Preload("Classes").First(&user, userID)
+	ctx.JSON(200, user)
+}
+
+// @Summary Update user by ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Router /users/{id} [put]
+func PutUserByID(ctx *gin.Context) {
+	userID := ctx.Param("id")
+
+	var body struct {
+		Name string `json:"Name"`
+		Age  uint8  `json:"Age"`
+	}
+	if err := ctx.Bind(&body); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := initializers.DB.First(&user, userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "User not found"})
+			return
+		}
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Name = body.Name
+	user.Age = body.Age
+	initializers.DB.Save(&user)
+
+	initializers.DB.Preload("Classes").First(&user, userID)
+	ctx.JSON(200, user)
 }
