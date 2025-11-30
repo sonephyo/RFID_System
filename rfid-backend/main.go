@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sonephyo/RFID_System/rfid-backend/controllers"
 	docs "github.com/sonephyo/RFID_System/rfid-backend/docs"
@@ -16,6 +17,15 @@ func init() {
 
 func main() {
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"https://rfid-system-1.onrender.com",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
 	docs.SwaggerInfo.BasePath = "/"
 
 	api := r.Group("/api")
