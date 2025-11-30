@@ -45,7 +45,7 @@ func main() {
 		class_r.PUT("/:id", controllers.PutClassByID)
 		class_r.DELETE("/:id", controllers.DeleteClass)
 
-		attendence_r := api.Group("/attendences") 
+		attendence_r := api.Group("/attendence") 
 		attendence_r.POST("/", controllers.PostAttendance)
 	}
 
