@@ -44,10 +44,11 @@ func main() {
 		class_r.POST("/", controllers.PostClass)
 		class_r.PUT("/:id", controllers.PutClassByID)
 		class_r.DELETE("/:id", controllers.DeleteClass)
+
+		attendence_r := api.Group("/attendences") 
+		attendence_r.POST("/", controllers.PostAttendance)
 	}
 
-	// TODO: Implement attendence functionality after scanning
-	// attendence_r := r.Group("/attendences")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run()
 }
