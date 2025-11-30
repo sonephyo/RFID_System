@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 interface Class {
   ID: number;
-  Name: string;
+  name: string;
 }
 
 interface UserData {
@@ -29,16 +29,23 @@ export default function CardForm({ cardId }: CardFormProps) {
   const [editAge, setEditAge] = useState(0);
   const [editClassIds, setEditClassIds] = useState<number[]>([]);
 
+  // Registration state
+  const [registering, setRegistering] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newAge, setNewAge] = useState(0);
+  const [registerError, setRegisterError] = useState<string | null>(null);
+
+  const API_URL = import.meta.env.VITE_API_URL || "";
+
   useEffect(() => {
     fetchUser();
     fetchClasses();
   }, [cardId]);
 
-  const API_URL = import.meta.env.VITE_API_URL || "";
-
   const fetchUser = async () => {
     setLoading(true);
     setError(null);
+    setRegistering(false);
 
     try {
       const response = await fetch(`${API_URL}/api/users/card/${cardId}`);
@@ -69,7 +76,7 @@ export default function CardForm({ cardId }: CardFormProps) {
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch("${API_URL}/api/classes");
+      const response = await fetch(`${API_URL}/api/classes/`);
       const data = await response.json();
       setAllClasses(data.data || []);
     } catch (e) {
@@ -135,16 +142,103 @@ export default function CardForm({ cardId }: CardFormProps) {
     setEditing(false);
   };
 
+  const handleRegister = async () => {
+    setSaving(true);
+    setRegisterError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/api/users/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          age: newAge,
+          cardID: cardId,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to register");
+      }
+
+      setNewName("");
+      setNewAge(0);
+      setRegistering(false);
+      fetchUser();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Registration failed";
+      setRegisterError(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return <div className="mt-4 text-gray-500">Loading user info...</div>;
   }
 
   if (error) {
+    if (registering) {
+      return (
+        <div className="mt-4 space-y-4 border-l-4 border-green-500 pl-4">
+          <h3 className="font-bold">Register New User</h3>
+          
+          <div className="bg-gray-800 p-2 rounded">
+            <span className="text-xs">Card ID</span>
+            <p className="font-mono">{cardId}</p>
+          </div>
+
+          {registerError && (
+            <p className="text-red-500 text-sm">{registerError}</p>
+          )}
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Name</label>
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="border rounded px-3 py-2 w-full"
+              placeholder="Enter name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Age</label>
+            <input
+              type="number"
+              value={newAge}
+              onChange={(e) => setNewAge(parseInt(e.target.value) || 0)}
+              className="border rounded px-3 py-2 w-full"
+              placeholder="Enter age"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleRegister}
+              disabled={saving || !newName}
+              className="bg-green-500 text-white px-4 py-2 rounded text-sm disabled:bg-gray-400"
+            >
+              {saving ? "Registering..." : "Register"}
+            </button>
+            <button
+              onClick={() => setRegistering(false)}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="mt-4">
         <p className="text-red-500 mb-2">{error}</p>
         <button
-          onClick={() => (window.location.href = `/register?cardId=${cardId}`)}
+          onClick={() => setRegistering(true)}
           className="bg-green-500 text-white px-4 py-2 rounded text-sm"
         >
           Register New User
@@ -189,7 +283,7 @@ export default function CardForm({ cardId }: CardFormProps) {
                       onChange={() => toggleClass(cls.ID)}
                       className="w-4 h-4"
                     />
-                    <span>{cls.Name}</span>
+                    <span>{cls.name}</span>
                   </label>
                 ))}
               </div>
@@ -236,9 +330,9 @@ export default function CardForm({ cardId }: CardFormProps) {
             {user.Classes.map((cls) => (
               <li
                 key={cls.ID}
-                className="bg-gray-50 p-3 rounded border text-sm"
+                className="bg-gray-800 p-3 rounded border text-sm"
               >
-                <p className="font-medium">{cls.Name}</p>
+                <p className="font-medium">{cls.name}</p>
               </li>
             ))}
           </ul>
