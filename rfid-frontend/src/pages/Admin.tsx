@@ -49,7 +49,7 @@ export default function Admin() {
   const readData = async () => {
     if (!portRef.current?.readable) return;
     const decoder = new TextDecoderStream();
-    portRef.current.readable.pipeTo(decoder.writable);
+    portRef.current.readable.pipeTo(decoder.writable as WritableStream<Uint8Array>);
     const reader = decoder.readable.getReader();
     try {
       while (true) {

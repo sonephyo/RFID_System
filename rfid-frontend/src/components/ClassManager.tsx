@@ -45,13 +45,15 @@ export default function ClassManager() {
   const [formData, setFormData] = useState(emptyClass);
   const [saving, setSaving] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL || "";
+
   useEffect(() => {
     fetchClasses();
   }, []);
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch("/api/classes/");
+      const response = await fetch(`${API_URL}/api/classes/`);
       const data = await response.json();
       setClasses(data.data || []);
     } catch (e) {
@@ -64,7 +66,7 @@ export default function ClassManager() {
   const handleCreate = async () => {
     setSaving(true);
     try {
-      const response = await fetch("/api/classes/", {
+      const response = await fetch(`${API_URL}/api/classes/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -84,7 +86,7 @@ export default function ClassManager() {
   const handleUpdate = async (id: number) => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/classes/${id}`, {
+      const response = await fetch(`${API_URL}/api/classes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -104,7 +106,7 @@ export default function ClassManager() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this class?")) return;
     try {
-      const response = await fetch(`/api/classes/${id}`, {
+      const response = await fetch(`${API_URL}/api/classes/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
