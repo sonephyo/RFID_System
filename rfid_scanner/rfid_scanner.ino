@@ -47,6 +47,15 @@ void loop() {
 
 void configOperation() {
 
+  waitForConnection();
+  
+  String card = readCard();
+
+  if (card != "") {
+    Serial.println("Card: " + card);  // Sending to frontend
+    displayLine1("Card scanned:");
+    displayLine2(card);
+  }
 }
 
 void attendanceOperation() {
@@ -58,12 +67,4 @@ void attendanceOperation() {
   // } else {
   //   Serial.println("Backend cannot be connected.");
   // }
-
-  String card = readCard();
-
-  if (card != "") {
-    Serial.println("Card: " + card); // Sending to frontend
-    displayLine1("Card scanned:");
-    displayLine2(card);
-  }
 }

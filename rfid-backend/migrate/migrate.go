@@ -31,11 +31,11 @@ func main() {
 		log.Fatal("Error: Migration Failed")
 	}
 	fmt.Println("Tables created...")
-
+	
 	classData := []*models.Class{
-		{Name: "CSC322"},
-		{Name: "CSC473"},
-		{Name: "CSC101"},
+		{Name: "CSC322", StartTime: "09:00", EndTime: "10:30", Monday: true, Wednesday: true, Friday: true},
+		{Name: "CSC473", StartTime: "14:00", EndTime: "15:30", Tuesday: true, Thursday: true},
+		{Name: "CSC101", StartTime: "11:00", EndTime: "12:00", Monday: true, Wednesday: true},
 	}
 	initializers.DB.Create(&classData)
 	fmt.Println("Created 3 classes...")

@@ -30,6 +30,10 @@ func main() {
 
 		class_r := api.Group("/classes")
 		class_r.GET("/", controllers.GetClasses)
+		class_r.GET("/today", controllers.GetTodaysClasses)
+		class_r.POST("/", controllers.PostClass)
+		class_r.PUT("/:id", controllers.PutClassByID)
+		class_r.DELETE("/:id", controllers.DeleteClass)
 	}
 
 	// TODO: Implement attendence functionality after scanning
@@ -40,7 +44,6 @@ func main() {
 	r.NoRoute(func(c *gin.Context) {
 		c.File("./frontend/dist/index.html")
 	})
-
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run()
