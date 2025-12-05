@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 interface Class {
   ID: number;
   name: string;
@@ -52,7 +54,7 @@ export default function AttendanceReport() {
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch("/api/classes/");
+      const response = await fetch(`${API_URL}/api/classes/`);
       const data = await response.json();
       setClasses(data.data || []);
     } catch (e) {
@@ -66,7 +68,7 @@ export default function AttendanceReport() {
     if (!selectedClassId) return;
     setLoading(true);
 
-    let url = `/api/attendance/report/${selectedClassId}`;
+    let url = `${API_URL}/api/attendance/report/${selectedClassId}`;
     if (selectedRange > 0) {
       const endDate = new Date().toISOString().split("T")[0];
       const startDate = new Date(Date.now() - selectedRange * 24 * 60 * 60 * 1000)
