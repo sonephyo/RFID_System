@@ -47,6 +47,8 @@ func main() {
 
 		attendence_r := api.Group("/attendance") 
 		attendence_r.POST("/", controllers.PostAttendance)
+		attendence_r.GET("/report/:classId", controllers.GetAttendanceReport)
+
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

@@ -68,3 +68,88 @@ func GetAttendanceByClass(ctx *gin.Context) {
 
 	ctx.JSON(200, gin.H{"data": attendances})
 }
+
+func GetAttendanceReport(ctx *gin.Context) {
+	classId := ctx.Param("classId")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
+
+	var class models.Class
+	if err := initializers.DB.Preload("Users").First(&class, classId).Error; err != nil {
+		ctx.JSON(404, gin.H{"error": "Class not found"})
+		return
+	}
+
+	query := initializers.DB.Where("class_id = ?", classId)
+	if startDate != "" {
+		query = query.Where("check_in_time >= ?", startDate)
+	}
+	if endDate != "" {
+		query = query.Where("check_in_time <= ?", endDate+" 23:59:59")
+	}
+
+	var attendances []models.Attendance
+	query.Find(&attendances)
+
+	userAttendance := make(map[uint]int)
+	for _, a := range attendances {
+		userAttendance[a.UserID]++
+	}
+
+	dateSet := make(map[string]bool)
+	for _, a := range attendances {
+		dateStr := a.CheckInTime.Format("2006-01-02")
+		dateSet[dateStr] = true
+	}
+	totalSessions := len(dateSet)
+
+	if totalSessions == 0 {
+		totalSessions = 1
+	}
+
+	type UserStats struct {
+		ID             uint    `json:"id"`
+		Name           string  `json:"name"`
+		CardID         string  `json:"cardId"`
+		AttendedCount  int     `json:"attendedCount"`
+		TotalSessions  int     `json:"totalSessions"`
+		AttendanceRate float64 `json:"attendanceRate"`
+	}
+
+	var userStats []UserStats
+	for _, user := range class.Users {
+		attended := userAttendance[user.ID]
+		rate := float64(attended) / float64(totalSessions) * 100
+		if rate > 100 {
+			rate = 100
+		}
+		userStats = append(userStats, UserStats{
+			ID:             user.ID,
+			Name:           user.Name,
+			CardID:         user.CardID,
+			AttendedCount:  attended,
+			TotalSessions:  totalSessions,
+			AttendanceRate: rate,
+		})
+	}
+
+	var totalRate float64
+	for _, u := range userStats {
+		totalRate += u.AttendanceRate
+	}
+	classAverage := 0.0
+	if len(userStats) > 0 {
+		classAverage = totalRate / float64(len(userStats))
+	}
+
+	ctx.JSON(200, gin.H{
+		"class": gin.H{
+			"id":            class.ID,
+			"name":          class.Name,
+			"totalSessions": totalSessions,
+			"averageRate":   classAverage,
+			"enrolledCount": len(class.Users),
+		},
+		"users": userStats,
+	})
+}
