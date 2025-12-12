@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sonephyo/RFID_System/rfid-backend/controllers"
 	docs "github.com/sonephyo/RFID_System/rfid-backend/docs"
@@ -16,6 +17,15 @@ func init() {
 
 func main() {
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"https://rfid-system-1.onrender.com",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
 	docs.SwaggerInfo.BasePath = "/"
 
 	api := r.Group("/api")
@@ -34,16 +44,12 @@ func main() {
 		class_r.POST("/", controllers.PostClass)
 		class_r.PUT("/:id", controllers.PutClassByID)
 		class_r.DELETE("/:id", controllers.DeleteClass)
+
+		attendence_r := api.Group("/attendance") 
+		attendence_r.POST("/", controllers.PostAttendance)
+		attendence_r.GET("/report/:classId", controllers.GetAttendanceReport)
+
 	}
-
-	// TODO: Implement attendence functionality after scanning
-	// attendence_r := r.Group("/attendences")
-
-	r.Static("/assets", "./frontend/dist/assets")
-	r.StaticFile("/", "./frontend/dist/index.html")
-	r.NoRoute(func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
-	})
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run()

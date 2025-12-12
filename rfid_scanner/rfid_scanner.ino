@@ -34,10 +34,6 @@ void setup() {
 }
 
 void loop() {
-  // if (Serial2.available()) {
-  //   Serial.println(Serial2.readStringUntil('\n'));
-  // }
-
   if (currentMode == MODE_ATTENDANCE) {
     attendanceOperation();
   } else {
@@ -56,15 +52,4 @@ void configOperation() {
     displayLine1("Card scanned:");
     displayLine2(card);
   }
-}
-
-void attendanceOperation() {
-  // reconnectWifi();
-  // WiFiClient client;
-  // bool isConnected = connectBackend(client);
-  // if (isConnected) {
-  //   getUser(client);
-  // } else {
-  //   Serial.println("Backend cannot be connected.");
-  // }
 }

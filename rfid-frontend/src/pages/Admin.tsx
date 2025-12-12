@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import CardForm from "../components/CardForm";
 import ClassManager from "../components/ClassManager";
+import AttendanceReport from "../components/AttendanceReport";
 
 export default function Admin() {
   const [connected, setConnected] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"scanner" | "classes">("scanner");
+  const [activeTab, setActiveTab] = useState<"scanner" | "classes" | "reports">("scanner");
   const portRef = useRef<SerialPort | null>(null);
   const bufferRef = useRef<string>("");
 
@@ -49,7 +50,7 @@ export default function Admin() {
   const readData = async () => {
     if (!portRef.current?.readable) return;
     const decoder = new TextDecoderStream();
-    portRef.current.readable.pipeTo(decoder.writable);
+    portRef.current.readable.pipeTo(decoder.writable as WritableStream<Uint8Array>);
     const reader = decoder.readable.getReader();
     try {
       while (true) {
@@ -78,11 +79,9 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Subtle grid background */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
       
       <div className="relative max-w-4xl mx-auto px-6 py-12">
-        {/* Header */}
         <header className="mb-12">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"}`} />
@@ -95,7 +94,6 @@ export default function Admin() {
           </h1>
         </header>
 
-        {/* Connection Button */}
         <button
           onClick={requestConnection}
           disabled={connected}
@@ -124,7 +122,6 @@ export default function Admin() {
           </div>
         </button>
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-8 p-1 bg-zinc-900/50 border border-zinc-800/50">
           <button
             onClick={() => setActiveTab("scanner")}
@@ -146,10 +143,19 @@ export default function Admin() {
           >
             Manage Classes
           </button>
+          <button
+            onClick={() => setActiveTab("reports")}
+            className={`flex-1 py-3 text-sm font-medium transition-all duration-200 ${
+              activeTab === "reports"
+                ? "bg-zinc-800 text-white"
+                : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            Attendance Reports
+          </button>
         </div>
 
-        {/* Content */}
-        {activeTab === "scanner" ? (
+        {activeTab === "scanner" && (
           <div className="border border-zinc-800/50 bg-zinc-900/30">
             <div className="p-6 border-b border-zinc-800/50">
               <div className="flex items-center justify-between">
@@ -203,13 +209,20 @@ export default function Admin() {
               )}
             </div>
           </div>
-        ) : (
+        )}
+
+        {activeTab === "classes" && (
           <div className="border border-zinc-800/50 bg-zinc-900/30 p-6">
             <ClassManager />
           </div>
         )}
 
-        {/* Footer */}
+        {activeTab === "reports" && (
+          <div className="border border-zinc-800/50 bg-zinc-900/30 p-6">
+            <AttendanceReport />
+          </div>
+        )}
+
         <footer className="mt-12 text-center">
           <p className="text-xs text-zinc-600">
             RFID Attendance System • {new Date().getFullYear()}

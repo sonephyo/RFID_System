@@ -3,15 +3,6 @@ import { useState, useEffect } from "react";
 interface Class {
   ID: number;
   name: string;
-  startTime: string;
-  endTime: string;
-  monday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-  saturday: boolean;
-  sunday: boolean;
 }
 
 interface UserData {
@@ -26,16 +17,6 @@ interface CardFormProps {
   cardId: string;
 }
 
-const days = [
-  { key: "monday", label: "M" },
-  { key: "tuesday", label: "T" },
-  { key: "wednesday", label: "W" },
-  { key: "thursday", label: "Th" },
-  { key: "friday", label: "F" },
-  { key: "saturday", label: "Sa" },
-  { key: "sunday", label: "Su" },
-];
-
 export default function CardForm({ cardId }: CardFormProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [allClasses, setAllClasses] = useState<Class[]>([]);
@@ -48,6 +29,14 @@ export default function CardForm({ cardId }: CardFormProps) {
   const [editAge, setEditAge] = useState(0);
   const [editClassIds, setEditClassIds] = useState<number[]>([]);
 
+  // Registration state
+  const [registering, setRegistering] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newAge, setNewAge] = useState(0);
+  const [registerError, setRegisterError] = useState<string | null>(null);
+
+  const API_URL = import.meta.env.VITE_API_URL || "";
+
   useEffect(() => {
     fetchUser();
     fetchClasses();
@@ -56,9 +45,10 @@ export default function CardForm({ cardId }: CardFormProps) {
   const fetchUser = async () => {
     setLoading(true);
     setError(null);
+    setRegistering(false);
 
     try {
-      const response = await fetch(`/api/users/card/${cardId}`);
+      const response = await fetch(`${API_URL}/api/users/card/${cardId}`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -86,7 +76,7 @@ export default function CardForm({ cardId }: CardFormProps) {
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch("/api/classes/");
+      const response = await fetch(`${API_URL}/api/classes/`);
       const data = await response.json();
       setAllClasses(data.data || []);
     } catch (e) {
@@ -107,7 +97,7 @@ export default function CardForm({ cardId }: CardFormProps) {
     setSaving(true);
 
     try {
-      const userResponse = await fetch(`/api/users/${user.ID}`, {
+      const userResponse = await fetch(`${API_URL}/api/users/${user.ID}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -120,7 +110,7 @@ export default function CardForm({ cardId }: CardFormProps) {
         throw new Error(`HTTP ${userResponse.status}`);
       }
 
-      const classResponse = await fetch(`/api/users/${user.ID}/classes`, {
+      const classResponse = await fetch(`${API_URL}/api/users/${user.ID}/classes`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -152,27 +142,104 @@ export default function CardForm({ cardId }: CardFormProps) {
     setEditing(false);
   };
 
+  const handleRegister = async () => {
+    setSaving(true);
+    setRegisterError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/api/users/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          age: newAge,
+          cardID: cardId,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to register");
+      }
+
+      setNewName("");
+      setNewAge(0);
+      setRegistering(false);
+      fetchUser();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Registration failed";
+      setRegisterError(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center gap-3 text-zinc-500 py-8">
-        <div className="w-4 h-4 border-2 border-zinc-600 border-t-emerald-500 rounded-full animate-spin" />
-        Loading user info...
-      </div>
-    );
+    return <div className="mt-4 text-gray-500">Loading user info...</div>;
   }
 
   if (error) {
-    return (
-      <div className="py-8">
-        <div className="flex items-center gap-3 text-amber-500 mb-4">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <span>{error}</span>
+    if (registering) {
+      return (
+        <div className="mt-4 space-y-4 border-l-4 border-green-500 pl-4">
+          <h3 className="font-bold">Register New User</h3>
+          
+          <div className="bg-gray-800 p-2 rounded">
+            <span className="text-xs">Card ID</span>
+            <p className="font-mono">{cardId}</p>
+          </div>
+
+          {registerError && (
+            <p className="text-red-500 text-sm">{registerError}</p>
+          )}
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Name</label>
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="border rounded px-3 py-2 w-full"
+              placeholder="Enter name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Age</label>
+            <input
+              type="number"
+              value={newAge}
+              onChange={(e) => setNewAge(parseInt(e.target.value) || 0)}
+              className="border rounded px-3 py-2 w-full"
+              placeholder="Enter age"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleRegister}
+              disabled={saving || !newName}
+              className="bg-green-500 text-white px-4 py-2 rounded text-sm disabled:bg-gray-400"
+            >
+              {saving ? "Registering..." : "Register"}
+            </button>
+            <button
+              onClick={() => setRegistering(false)}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
+      );
+    }
+
+    return (
+      <div className="mt-4">
+        <p className="text-red-500 mb-2">{error}</p>
         <button
-          onClick={() => (window.location.href = `/register?cardId=${cardId}`)}
-          className="bg-emerald-500 text-black font-medium px-6 py-3 hover:bg-emerald-400 transition-colors"
+          onClick={() => setRegistering(true)}
+          className="bg-green-500 text-white px-4 py-2 rounded text-sm"
         >
           Register New User
         </button>
@@ -183,159 +250,94 @@ export default function CardForm({ cardId }: CardFormProps) {
   if (!user) return null;
 
   return (
-    <div className="space-y-6">
-      {editing ? (
-        <div className="border-l-4 border-emerald-500 bg-zinc-800/30 p-6 space-y-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-xs uppercase tracking-widest text-zinc-500">Editing User</span>
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Name</label>
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-zinc-500 mb-2">Age</label>
-            <input
-              type="number"
-              value={editAge}
-              onChange={(e) => setEditAge(parseInt(e.target.value) || 0)}
-              className="w-full bg-zinc-800 border border-zinc-700 px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-zinc-500 mb-3">Classes</label>
-            <div className="space-y-2">
-              {allClasses.map((cls) => (
-                <label
-                  key={cls.ID}
-                  className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
-                    editClassIds.includes(cls.ID)
-                      ? "bg-emerald-500/10 border border-emerald-500/30"
-                      : "bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-600"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={editClassIds.includes(cls.ID)}
-                    onChange={() => toggleClass(cls.ID)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`w-5 h-5 border flex items-center justify-center transition-colors ${
-                      editClassIds.includes(cls.ID)
-                        ? "bg-emerald-500 border-emerald-500"
-                        : "border-zinc-600"
-                    }`}
-                  >
-                    {editClassIds.includes(cls.ID) && (
-                      <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-white">{cls.name}</span>
-                    <span className="text-zinc-500 text-sm ml-2">
-                      {cls.startTime} - {cls.endTime}
-                    </span>
-                  </div>
-                </label>
-              ))}
+    <div className="mt-4 space-y-4">
+      <div className="border-t pt-4">
+        {editing ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Name</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="border rounded px-3 py-2 w-full"
+              />
             </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 bg-emerald-500 text-black font-medium py-3 hover:bg-emerald-400 transition-colors disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-            <button
-              onClick={handleCancel}
-              className="px-6 py-3 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-black font-bold text-lg">
-                {user.Name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-white">{user.Name}</h3>
-                <p className="text-zinc-500 text-sm">Age: {user.Age}</p>
-              </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Age</label>
+              <input
+                type="number"
+                value={editAge}
+                onChange={(e) => setEditAge(parseInt(e.target.value) || 0)}
+                className="border rounded px-3 py-2 w-full"
+              />
             </div>
-            <button
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              <span className="text-sm">Edit</span>
-            </button>
-          </div>
-
-          <div>
-            <h4 className="text-xs uppercase tracking-wider text-zinc-500 mb-3">
-              Enrolled Classes ({user.Classes?.length || 0})
-            </h4>
-
-            {!user.Classes || user.Classes.length === 0 ? (
-              <p className="text-zinc-600 text-sm py-4">No classes enrolled</p>
-            ) : (
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Classes</label>
               <div className="space-y-2">
-                {user.Classes.map((cls) => (
-                  <div
-                    key={cls.ID}
-                    className="flex items-center justify-between bg-zinc-800/30 border border-zinc-800/50 p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-8 bg-emerald-500" />
-                      <div>
-                        <p className="font-medium text-white">{cls.name}</p>
-                        <p className="text-sm text-zinc-500">
-                          {cls.startTime} - {cls.endTime}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      {days.map(({ key, label }) => (
-                        <span
-                          key={key}
-                          className={`w-6 h-6 flex items-center justify-center text-[10px] ${
-                            cls[key as keyof Class]
-                              ? "bg-emerald-500/20 text-emerald-400"
-                              : "bg-zinc-800/50 text-zinc-600"
-                          }`}
-                        >
-                          {label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                {allClasses.map((cls) => (
+                  <label key={cls.ID} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={editClassIds.includes(cls.ID)}
+                      onChange={() => toggleClass(cls.ID)}
+                      className="w-4 h-4"
+                    />
+                    <span>{cls.name}</span>
+                  </label>
                 ))}
               </div>
-            )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-green-500 text-white px-4 py-2 rounded text-sm disabled:bg-gray-400"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        </>
-      )}
+        ) : (
+          <div>
+            <h3 className="font-bold text-lg">{user.Name}</h3>
+            <p className="text-gray-600 text-sm">Age: {user.Age}</p>
+            <button
+              onClick={() => setEditing(true)}
+              className="mt-2 text-blue-500 text-sm underline"
+            >
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h4 className="font-semibold mb-2">
+          Registered Classes ({user.Classes?.length || 0})
+        </h4>
+
+        {!user.Classes || user.Classes.length === 0 ? (
+          <p className="text-gray-500 text-sm">No classes registered</p>
+        ) : (
+          <ul className="space-y-2">
+            {user.Classes.map((cls) => (
+              <li
+                key={cls.ID}
+                className="bg-gray-800 p-3 rounded border text-sm"
+              >
+                <p className="font-medium">{cls.name}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
