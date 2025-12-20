@@ -90,7 +90,6 @@ Connect Arduino Uno to ESP32:
 - **GND** → **GND** (common ground)
 
 
-<img src="https://github.com/user-attachments/assets/229e0cfe-6fa9-42f7-a987-3b080297a009" width="400">
 
 #### Configuration
 
@@ -364,3 +363,4 @@ When adding new API endpoints:
 3. Test your changes thoroughly
 
 4. Submit a pull request with a clear description
+
