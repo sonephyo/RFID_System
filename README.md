@@ -356,11 +356,5 @@ When adding new API endpoints:
   - Run `./scripts/compile_docs.sh`
   - Check Swagger annotations are correct
 
-## 🤝 Contributing
 
-1. Create a new branch for your feature
-2. Make your changes following the development guidelines
-3. Test your changes thoroughly
-
-4. Submit a pull request with a clear description
 
